@@ -1,0 +1,21 @@
+# Local AI-assistant artifacts - not for public repo
+CLAUDE.md
+.claude/
+.claudeignore
+*.local.md
+
+# Build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+.vs/
+
+# Rider / IDE
+.idea/
+
+# NuGet
+*.nupkg
+packages/
