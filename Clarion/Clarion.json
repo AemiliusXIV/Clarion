@@ -1,0 +1,26 @@
+{
+    "Author": "AemiliusXIV",
+    "Name": "Clarion",
+    "InternalName": "Clarion",
+    "Punchline": "Save and apply Party Finder recruitment presets instantly.",
+    "Description": "Store a full Party Finder recruitment setup (duty, job slots, description, objective, loot rule, one player per job, language, and more) as a named preset and apply it in one go, instead of filling the form out by hand every time.\n\nFill a preset and review it, or fill and post the party in a single click. Optional auto-refresh keeps an active listing alive near the end of its hour, with the windows closed, and leaves your away status alone.\n\nOpen the Recruitment Criteria form (Recruit Members) to save or apply. Use /clarion.",
+    "ApplicableVersion": "any",
+    "Tags": [
+        "party",
+        "party finder",
+        "recruitment",
+        "preset",
+        "utility"
+    ],
+    "CategoryTags": [
+        "Utility"
+    ],
+    "RepoUrl": "https://github.com/AemiliusXIV/Clarion",
+    "DalamudApiLevel": 15,
+    "LoadRequiredState": 0,
+    "LoadSync": false,
+    "CanUnloadAsync": true,
+    "LoadPriority": 0,
+    "AcceptsFeedback": true,
+    "Changelog": "First release. Save a full Party Finder recruitment setup as a preset and apply it in one click, duty and all. Fill a preset to review it, or fill and post in one go. Optional auto-refresh keeps a listing alive near the end of its hour, with the windows closed, and leaves your away status alone."
+}

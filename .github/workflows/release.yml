@@ -1,0 +1,106 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.x.x'
+      - name: Download Dalamud
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/stg/latest.zip -OutFile latest.zip
+          Expand-Archive -Force latest.zip "$env:AppData\\XIVLauncher\\addon\\Hooks\\dev"
+      - name: Set version from tag
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}"
+          $csprojPath = "Clarion/Clarion.csproj"
+          $csproj = Get-Content $csprojPath -Raw
+          $csproj = $csproj -replace '<Version>.*?</Version>', "<Version>$version</Version>"
+          Set-Content $csprojPath $csproj -Encoding UTF8
+          Write-Host "Version set to $version"
+      - name: Build
+        shell: pwsh
+        run: dotnet build Clarion/Clarion.csproj --configuration Release --nologo
+      - name: Verify build output
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "Clarion/bin/Release/Clarion/latest.zip")) {
+            Write-Error "latest.zip not found after build"
+            exit 1
+          }
+      - name: Create GitHub Release
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}"
+          $token   = "${{ secrets.GITHUB_TOKEN }}"
+          $headers = @{
+            Authorization          = "Bearer $token"
+            Accept                 = "application/vnd.github+json"
+            "X-GitHub-Api-Version" = "2022-11-28"
+          }
+          $release = Invoke-RestMethod `
+            -Uri     "https://api.github.com/repos/${{ github.repository }}/releases" `
+            -Method  Post `
+            -Headers $headers `
+            -Body    (ConvertTo-Json @{ tag_name = $version; name = "v$version"; body = "Release $version" }) `
+            -ContentType "application/json"
+          $uploadUri = $release.upload_url -replace '\{.*\}', "?name=latest.zip"
+          $bytes = [IO.File]::ReadAllBytes("$PWD/Clarion/bin/Release/Clarion/latest.zip")
+          Invoke-RestMethod `
+            -Uri         $uploadUri `
+            -Method      Post `
+            -Headers     $headers `
+            -Body        $bytes `
+            -ContentType "application/octet-stream"
+  update-manifest:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update pluginmaster.json in DalamudPlugins
+        env:
+          GH_TOKEN: ${{ secrets.MANIFEST_PAT }}
+        run: |
+          set -euo pipefail
+          VERSION="${{ github.ref_name }}"
+          # Read changelog and API level from the manifest inside the shipped zip,
+          # so pluginmaster always matches the artifact users actually download.
+          gh release download "$VERSION" --repo ${{ github.repository }} --pattern "latest.zip" --output latest.zip
+          CHANGELOG=$(unzip -p latest.zip Clarion.json | jq -r '.Changelog // empty')
+          API_LEVEL=$(unzip -p latest.zip Clarion.json | jq '.DalamudApiLevel // empty')
+          RESPONSE=$(gh api repos/AemiliusXIV/DalamudPlugins/contents/pluginmaster.json)
+          SHA=$(echo "$RESPONSE" | jq -r '.sha')
+          CONTENT=$(echo "$RESPONSE" | jq -r '.content' | base64 -d)
+          NEW_CONTENT=$(echo "$CONTENT" | jq \
+            --arg v "$VERSION" \
+            --arg n "Clarion" \
+            --arg cl "$CHANGELOG" \
+            --argjson al "$API_LEVEL" \
+            '(.[] | select(.InternalName==$n) | .AssemblyVersion) = $v |
+             (.[] | select(.InternalName==$n) | .Changelog) = $cl |
+             (.[] | select(.InternalName==$n) | .DalamudApiLevel) = $al')
+          ENCODED=$(echo "$NEW_CONTENT" | base64 -w 0)
+          gh api repos/AemiliusXIV/DalamudPlugins/contents/pluginmaster.json \
+            --method PUT \
+            -f message="Sync plugin versions from upstream releases" \
+            -f content="$ENCODED" \
+            -f sha="$SHA" \
+            -f "committer[name]=AemiliusXIV" \
+            -f "committer[email]=mirror.rose2155@eagereverest.com" \
+            -f "author[name]=AemiliusXIV" \
+            -f "author[email]=mirror.rose2155@eagereverest.com"

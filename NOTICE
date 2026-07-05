@@ -1,0 +1,10 @@
+Clarion
+A third-party Dalamud plugin for FINAL FANTASY XIV.
+
+FINAL FANTASY XIV is a registered trademark of Square Enix Holdings Co., Ltd.
+This project is unofficial and is not affiliated with or endorsed by Square Enix Co., Ltd.
+
+This plugin uses the following third-party components, each distributed under its own license:
+
+- ECommons by NightmareXIV (MIT License, Copyright (c) 2023 NightmareXIV)
+- FFXIVClientStructs (via the Dalamud SDK)

@@ -1,0 +1,48 @@
+SOURCE-AVAILABLE FORK-ONLY LICENSE
+
+Copyright (c) 2026 AemiliusXIV
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), subject
+to the following conditions:
+
+1. USE AND MODIFICATION: Any person may use, run, copy, and modify the
+   Software for private, personal purposes without restriction.
+
+2. DISTRIBUTION (FORKS ONLY): The Software, or any modified version thereof,
+   may be distributed solely as a standalone derivative repository (a "Fork")
+   that clearly identifies the original project and credits the original
+   author (AemiliusXIV). The Software's source code, in whole or in part, may
+   not be incorporated into, adapted for, or reproduced within any other
+   software project or plugin, regardless of the degree of modification,
+   without prior explicit written permission from the original author. This
+   applies equally to compiled or binary forms of the Software.
+
+3. LICENSE PRESERVATION: This license file must be included, unmodified, in
+   all Forks and redistributions of the Software.
+
+4. CONTRIBUTIONS: By submitting a contribution to this project, you agree
+   that your contribution is licensed to the author under the terms of this
+   license. Contributors retain authorship credit for their contributions
+   through the project's version control history and platform contributor
+   records.
+
+5. TERMINATION: Any failure to comply with the conditions above automatically
+   terminates the rights granted under this license.
+
+6. SQUARE ENIX DISCLAIMER: This Software is an unofficial, third-party tool.
+   It is not affiliated with, endorsed by, sponsored by, or sanctioned by
+   Square Enix Co., Ltd. or Square Enix Holdings Co., Ltd. FINAL FANTASY and
+   FINAL FANTASY XIV are registered trademarks or trademarks of Square Enix
+   Holdings Co., Ltd. The use of third-party tools, including this Software,
+   is prohibited under the FINAL FANTASY XIV Terms of Service. The author
+   accepts no liability for any consequences arising from the use of this
+   Software, including but not limited to account suspension or termination.
+   Use at your own risk.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

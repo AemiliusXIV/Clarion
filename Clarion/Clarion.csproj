@@ -1,0 +1,39 @@
+<Project Sdk="Dalamud.NET.Sdk/15.0.0">
+
+  <PropertyGroup>
+    <Version>0.0.0.1</Version>
+    <Description>Save a full Party Finder recruitment setup as a preset and apply it in one go.</Description>
+    <PackageProjectUrl>https://github.com/AemiliusXIV/Clarion</PackageProjectUrl>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
+
+  <!-- Developer tooling (AtkValue capture hook, diagnostic window, verbose logging) is compiled
+       in ONLY when PfpDevTools=true. Default is false, so any normal build - and every published
+       release - physically contains none of that code. To do field-mapping work locally, build
+       with:  dotnet build -c Release -p:PfpDevTools=true -->
+  <PropertyGroup>
+    <PfpDevTools Condition="'$(PfpDevTools)' == ''">false</PfpDevTools>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(PfpDevTools)' == 'true'">
+    <DefineConstants>$(DefineConstants);PFP_DEVTOOLS</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
+  </ItemGroup>
+
+  <!-- Auto-deploy to Dalamud's customPlugins folder after every local build (skipped in CI). -->
+  <Target Name="DeployToCustomPlugins" AfterTargets="Build" Condition="'$(GITHUB_ACTIONS)' != 'true'">
+    <PropertyGroup>
+      <_CustomPluginsDir>$(APPDATA)\XIVLauncher\customPlugins\Clarion</_CustomPluginsDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(_CustomPluginsDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(_CustomPluginsDir)" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="$(TargetDir)$(AssemblyName).deps.json" DestinationFolder="$(_CustomPluginsDir)" SkipUnchangedFiles="false" Condition="Exists('$(TargetDir)$(AssemblyName).deps.json')" />
+    <Copy SourceFiles="$(TargetDir)$(AssemblyName).json" DestinationFolder="$(_CustomPluginsDir)" SkipUnchangedFiles="false" Condition="Exists('$(TargetDir)$(AssemblyName).json')" />
+  </Target>
+
+</Project>
