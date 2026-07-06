@@ -27,6 +27,9 @@ public sealed class ConfigWindow : Window, IDisposable
             Config.Enabled = enabled;
             Config.Save();
         }
+        ImGui.SameLine();
+        if (ImGui.Button("Presets"))
+            plugin.OpenMain();
 
         ImGui.Separator();
         ImGui.TextDisabled("Auto-refresh");
@@ -36,11 +39,11 @@ public sealed class ConfigWindow : Window, IDisposable
         {
             Config.AutoRefreshEnabled = autoRefresh;
             Config.Save();
-            // Enabling it while a listing is already live: refresh straight away to reset its clock and
-            // anchor exact timing (covers turning this on partway through an hour). Gated on the
-            // recruiting flag so enabling with no listing up never opens the PF.
+            // Enabling it while a listing is already live: peek at the real time remaining and anchor to
+            // it, without re-registering (so the listing's hour isn't reset). Gated on the recruiting
+            // flag so enabling with no listing up never opens the PF.
             if (autoRefresh && Services.AutoRefreshService.IsRecruiting)
-                plugin.AutoRefresh.StartRefresh();
+                plugin.AutoRefresh.StartRefresh(peek: true);
         }
         if (ImGui.IsItemHovered())
             ImGui.SetTooltip("Re-confirms your active Party Finder listing near the end of its hour so it doesn't expire.");

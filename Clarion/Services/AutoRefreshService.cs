@@ -36,6 +36,7 @@ public sealed unsafe class AutoRefreshService : IDisposable
     private bool refreshing;
     private bool disposed;
     private bool wasBrowserOpenAtStart;
+    private bool peekOnly; // this run just reads the remaining time and anchors, without re-registering
 
     // Short cooldown set after an aborted attempt so we don't retry every frame. Deliberately not a
     // full interval: near expiry that would miss the listing entirely. Independent of countingSinceUtc
@@ -172,7 +173,7 @@ public sealed unsafe class AutoRefreshService : IDisposable
     /// The listing is verified after the browser opens (OwnListingId isn't readable while closed),
     /// so there's no pre-check here.
     /// </summary>
-    public bool StartRefresh()
+    public bool StartRefresh(bool peek = false)
     {
         if (refreshing)
             return false;
@@ -182,9 +183,10 @@ public sealed unsafe class AutoRefreshService : IDisposable
             return false;
 
         refreshing = true;
+        peekOnly = peek;
         wasBrowserOpenAtStart = IsAddonVisible("LookingForGroup");
 
-        DevLog.Info("[PFP refresh] starting");
+        DevLog.Info(peek ? "[PFP refresh] peek starting" : "[PFP refresh] starting");
         Guard(() => StepEnsureBrowser(0));
         return true;
     }
@@ -243,8 +245,41 @@ public sealed unsafe class AutoRefreshService : IDisposable
 
     private void OnDetailOpen(AtkUnitBase* detail)
     {
+        if (peekOnly)
+        {
+            // Just learn the real time left and anchor to it - no Edit/Recruit, so the listing's hour
+            // isn't reset. Used when auto-refresh is switched on mid-listing.
+            PeekReadTime(0);
+            return;
+        }
+
         Callback.Fire(detail, true, 0); // Edit
         StepWait("LookingForGroupCondition", 0, OnConditionOpen);
+    }
+
+    private void PeekReadTime(int attempt)
+    {
+        var remaining = ReadTimeRemainingMinutes();
+        if (remaining >= 0)
+        {
+            countingSinceUtc = DateTime.UtcNow - TimeSpan.FromMinutes(Math.Clamp(ListingMinutes - remaining, 0, ListingMinutes));
+            DevLog.Info($"[PFP refresh] peek synced to {remaining} min remaining");
+            refreshing = false;
+            Cleanup();
+            return;
+        }
+
+        // The time text can take a frame or two to populate after the view opens.
+        if (attempt < 20)
+        {
+            Defer(() => PeekReadTime(attempt + 1));
+            return;
+        }
+
+        countingSinceUtc ??= DateTime.UtcNow; // give up on exact time; track from now
+        DevLog.Info("[PFP refresh] peek could not read time; anchored to now");
+        refreshing = false;
+        Cleanup();
     }
 
     private void OnConditionOpen(AtkUnitBase* condition)

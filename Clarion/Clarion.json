@@ -22,5 +22,5 @@
     "CanUnloadAsync": true,
     "LoadPriority": 0,
     "AcceptsFeedback": true,
-    "Changelog": "First release. Save a full Party Finder recruitment setup as a preset and apply it in one click, duty and all. Fill a preset to review it, or fill and post in one go. Optional auto-refresh keeps a listing alive near the end of its hour, with the windows closed, and leaves your away status alone."
+    "Changelog": "Preset rows now label the loot rule and drop the duplicate duty name. Added buttons to jump between the preset list and settings. Turning auto-refresh on for a listing that's already live no longer resets its timer; it reads the time remaining instead."
 }

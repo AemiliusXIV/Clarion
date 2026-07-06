@@ -32,6 +32,10 @@ public sealed class MainWindow : Window, IDisposable
 
     public void Dispose() { }
 
+    // "GreedOnly" -> "Greed Only" so enum names read as normal words in the UI.
+    private static string Spaced(object value) =>
+        System.Text.RegularExpressions.Regex.Replace(value.ToString() ?? string.Empty, "(?<=[a-z])(?=[A-Z])", " ");
+
     private void SaveCurrent()
     {
         if (!RecruitmentReader.IsCriteriaFormOpen())
@@ -87,6 +91,8 @@ public sealed class MainWindow : Window, IDisposable
     {
         ImGui.TextWrapped("Save the current Party Finder recruitment form as a preset, or apply a saved preset to the form.");
         ImGui.TextDisabled("Open the recruitment creation form in-game (Recruit Members) before saving or applying.");
+        if (ImGui.Button("Settings"))
+            plugin.OpenSettings();
         ImGui.Separator();
 
         ImGui.SetNextItemWidth(-130);
@@ -126,8 +132,17 @@ public sealed class MainWindow : Window, IDisposable
                 {
                     ImGui.TextUnformatted(preset.Name);
                     ImGui.SameLine();
+                    // Secondary line: the duty (unless the name already is the duty) and the loot rule,
+                    // labelled so "Normal" reads as a loot rule rather than a mystery word.
                     var dutyName = DutyNames.Get(preset.DutyId);
-                    ImGui.TextDisabled(dutyName.Length > 0 ? $"({dutyName}, {preset.LootRule})" : $"(unknown duty, {preset.LootRule})");
+                    string dutyPart;
+                    if (dutyName.Length == 0)
+                        dutyPart = "unknown duty, ";
+                    else if (string.Equals(dutyName, preset.Name, StringComparison.OrdinalIgnoreCase))
+                        dutyPart = "";
+                    else
+                        dutyPart = $"{dutyName}, ";
+                    ImGui.TextDisabled($"({dutyPart}Loot: {Spaced(preset.LootRule)})");
                 }
 
                 // Line 2: actions, so nothing clips no matter how long the name is.
