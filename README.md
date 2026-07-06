@@ -1,9 +1,8 @@
 # Clarion
 
-A Dalamud plugin that saves a full Party Finder recruitment setup as a preset and applies it in
-one click. Duty, job slots, description, objective, loot rule, one player per job, language: all
-of it, filled in from a saved preset instead of clicking through the form every time you re-form
-a party.
+A Dalamud plugin that saves your full Party Finder recruitment setup as a named preset and
+reapplies it in one click, instead of clicking through the whole form every time you re-form a
+party.
 
 It can also keep an active listing alive, re-confirming it near the end of its hour so it
 doesn't quietly expire while you wait.
