@@ -13,6 +13,12 @@ public class Configuration : IPluginConfiguration
 
     public bool Enabled { get; set; } = true;
 
+    /// <summary>Open the preset window automatically while the in-game recruitment form is up, and close it again when the form closes.</summary>
+    public bool AutoShowWithRecruitmentForm { get; set; } = true;
+
+    /// <summary>Pin the quick pop-up to the recruitment form's top-left corner instead of centering it vertically on the form.</summary>
+    public bool CompanionAnchorTopLeft { get; set; }
+
     /// <summary>
     /// Mirror apply/read diagnostics to the Dalamud log. Only consulted by dev builds (the logging
     /// call sites are compiled out entirely when PFP_DEVTOOLS is not defined), so this has no effect

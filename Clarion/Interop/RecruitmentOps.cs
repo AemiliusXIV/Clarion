@@ -45,6 +45,22 @@ public sealed unsafe class RecruitmentOps
     /// Cancel closes the criteria (settings are preserved); once it's closed we fire the captured
     /// "open criteria" callback (value 14) on the still-open main browser to reopen it fresh.
     /// </summary>
+    /// <summary>
+    /// Fires the "Recruit Members" callback on the already-open main PF browser to bring up a fresh
+    /// Recruitment Criteria form. Returns false if the browser isn't open. Used by the one-click
+    /// "post from nothing" flow, which opens the browser first.
+    /// </summary>
+    public bool OpenCriteriaForm()
+    {
+        var mainBase = Plugin.GameGui.GetAddonByName<AtkUnitBase>("LookingForGroup");
+        if (mainBase == null || !mainBase->IsVisible)
+            return false;
+
+        Callback.Fire(mainBase, true, RecruitMembersCallbackValue);
+        DevLog.Info("[PFP launch] fired Recruit Members callback to open the form");
+        return true;
+    }
+
     public bool ReopenCriteriaForm()
     {
         var conditionBase = Plugin.GameGui.GetAddonByName<AtkUnitBase>("LookingForGroupCondition");

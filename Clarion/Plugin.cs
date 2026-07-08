@@ -1,3 +1,5 @@
+using Dalamud.Game.Addon.Lifecycle;
+using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 using Dalamud.Game.Command;
 using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
@@ -31,9 +33,11 @@ public sealed class Plugin : IDalamudPlugin
     internal Configuration Config { get; }
     internal Interop.RecruitmentOps RecruitmentOps { get; }
     internal Services.AutoRefreshService AutoRefresh { get; }
+    internal Services.PresetLauncher PresetLauncher { get; }
     internal WindowSystem WindowSystem { get; } = new("Clarion");
     internal MainWindow MainWindow { get; }
     internal ConfigWindow ConfigWindow { get; }
+    internal CompanionWindow CompanionWindow { get; }
 #if PFP_DEVTOOLS
     internal DiagnosticWindow DiagnosticWindow { get; }
     internal RecruitmentCaptureHook CaptureHook { get; }
@@ -52,11 +56,14 @@ public sealed class Plugin : IDalamudPlugin
 
         RecruitmentOps = new Interop.RecruitmentOps();
         AutoRefresh = new Services.AutoRefreshService(this);
+        PresetLauncher = new Services.PresetLauncher(this);
 
         MainWindow = new MainWindow(this);
         ConfigWindow = new ConfigWindow(this);
+        CompanionWindow = new CompanionWindow(this);
         WindowSystem.AddWindow(MainWindow);
         WindowSystem.AddWindow(ConfigWindow);
+        WindowSystem.AddWindow(CompanionWindow);
 #if PFP_DEVTOOLS
         CaptureHook = new RecruitmentCaptureHook();
         DiagnosticWindow = new DiagnosticWindow(this);
@@ -66,6 +73,10 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.Draw += WindowSystem.Draw;
         PluginInterface.UiBuilder.OpenConfigUi += OpenSettings;
         PluginInterface.UiBuilder.OpenMainUi += OpenMain;
+
+        // Companion behaviour: follow the in-game recruitment criteria form open/closed.
+        AddonLifecycle.RegisterListener(AddonEvent.PostSetup, "LookingForGroupCondition", OnRecruitFormSetup);
+        AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, "LookingForGroupCondition", OnRecruitFormFinalize);
 
         CommandManager.AddHandler(MainCommand, new CommandInfo(OnCommand)
         {
@@ -86,6 +97,7 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.OpenMainUi -= OpenMain;
         CommandManager.RemoveHandler(MainCommand);
         CommandManager.RemoveHandler(AliasCommand);
+        AddonLifecycle.UnregisterListener(OnRecruitFormSetup, OnRecruitFormFinalize);
         WindowSystem.RemoveAllWindows();
 
         AutoRefresh.Dispose();
@@ -100,6 +112,19 @@ public sealed class Plugin : IDalamudPlugin
 
     internal void OpenSettings() => ConfigWindow.IsOpen = true;
     internal void OpenMain() => MainWindow.IsOpen = true;
+
+    // The quick pop-up appears with the recruitment form, but only if the full window isn't already
+    // open. It never opens or closes the main window's state - the "Open Clarion" button does that.
+    private void OnRecruitFormSetup(AddonEvent type, AddonArgs args)
+    {
+        if (Config.AutoShowWithRecruitmentForm && !MainWindow.IsOpen)
+            CompanionWindow.IsOpen = true;
+    }
+
+    private void OnRecruitFormFinalize(AddonEvent type, AddonArgs args)
+    {
+        CompanionWindow.IsOpen = false;
+    }
 
     private void OnCommand(string command, string args)
     {

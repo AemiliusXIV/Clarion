@@ -31,6 +31,27 @@ public sealed class ConfigWindow : Window, IDisposable
         if (ImGui.Button("Presets"))
             plugin.OpenMain();
 
+        var autoShow = Config.AutoShowWithRecruitmentForm;
+        if (ImGui.Checkbox("Quick pop-up with the recruitment form", ref autoShow))
+        {
+            Config.AutoShowWithRecruitmentForm = autoShow;
+            Config.Save();
+        }
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip("Show a small quick-apply pop-up next to the Recruitment Criteria form while it's open (only when the full window isn't already open).");
+
+        if (Config.AutoShowWithRecruitmentForm)
+        {
+            var topLeft = Config.CompanionAnchorTopLeft;
+            if (ImGui.Checkbox("Pin the pop-up to the form's top-left", ref topLeft))
+            {
+                Config.CompanionAnchorTopLeft = topLeft;
+                Config.Save();
+            }
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("On: the pop-up sits at the form's top-left. Off: it's centered vertically on the form (middle-left).");
+        }
+
         ImGui.Separator();
         ImGui.TextDisabled("Auto-refresh");
 

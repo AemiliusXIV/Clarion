@@ -22,5 +22,5 @@
     "CanUnloadAsync": true,
     "LoadPriority": 0,
     "AcceptsFeedback": true,
-    "Changelog": "Preset rows now label the loot rule and drop the duplicate duty name. Added buttons to jump between the preset list and settings. Turning auto-refresh on for a listing that's already live no longer resets its timer; it reads the time remaining instead."
+    "Changelog": "Applying a preset now opens Party Finder and the recruitment form itself if they're closed, so you can post a party in one click from nothing. A compact quick pop-up appears beside the recruitment form for fast applying; you can move it or turn it off in settings. Hover the (?) on any preset row to see exactly what it would set."
 }

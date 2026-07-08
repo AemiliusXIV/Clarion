@@ -1,7 +1,9 @@
 using System;
 using System.Numerics;
+using System.Text;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using Clarion.Services;
 
 namespace Clarion.Windows;
@@ -36,6 +38,35 @@ public sealed class MainWindow : Window, IDisposable
     private static string Spaced(object value) =>
         System.Text.RegularExpressions.Regex.Replace(value.ToString() ?? string.Empty, "(?<=[a-z])(?=[A-Z])", " ");
 
+    // Hover overview: a plain-language summary of exactly what this preset would write to the form.
+    private static string BuildOverview(Model.PartyFinderPreset preset)
+    {
+        var sb = new StringBuilder();
+        var duty = DutyNames.Get(preset.DutyId);
+        sb.AppendLine($"Duty: {(duty.Length > 0 ? duty : preset.Category != AgentLookingForGroup.DutyCategory.None ? Spaced(preset.Category) : "None")}");
+        if (preset.Objective != AgentLookingForGroup.Objective.None)
+            sb.AppendLine($"Objective: {Spaced(preset.Objective)}");
+        sb.AppendLine($"Loot: {Spaced(preset.LootRule)}");
+        if (preset.LanguageFlags != default)
+            sb.AppendLine($"Languages: {preset.LanguageFlags}");
+
+        var party = $"Slots: {preset.NumberOfSlotsInMainParty}";
+        if (preset.NumberOfGroups > 1)
+            party += $" x {preset.NumberOfGroups} groups";
+        if (preset.OnePlayerPerJob)
+            party += ", one job per player";
+        sb.AppendLine(party);
+
+        if (preset.CompletionStatus != AgentLookingForGroup.CompletionStatus.None)
+            sb.AppendLine($"Completion: {Spaced(preset.CompletionStatus)}");
+        if (preset.BeginnerFriendly)
+            sb.AppendLine("Beginner friendly");
+        if (!string.IsNullOrWhiteSpace(preset.Comment))
+            sb.AppendLine($"Comment: {preset.Comment}");
+
+        return sb.ToString().TrimEnd();
+    }
+
     private void SaveCurrent()
     {
         if (!RecruitmentReader.IsCriteriaFormOpen())
@@ -64,33 +95,15 @@ public sealed class MainWindow : Window, IDisposable
         newPresetName = string.Empty;
     }
 
+    // The launcher opens Party Finder and the recruitment form itself if they aren't open, then
+    // applies (and recruits, when submit is set). If the form is already open it applies straight away.
     private void ApplyPreset(Model.PartyFinderPreset preset, bool submit)
-    {
-        var result = RecruitmentApplier.Apply(preset, submit);
-        if (result == RecruitmentApplier.ApplyResult.Success)
-        {
-            preset.LastUsedAt = DateTime.UtcNow;
-            plugin.Config.Save();
-            if (submit)
-                plugin.AutoRefresh.NotifyListingPosted();
-            Plugin.ChatGui.Print(submit
-                ? $"[Clarion] Preset \"{preset.Name}\" applied, now recruiting."
-                : $"[Clarion] Preset \"{preset.Name}\" filled in. Review it, then hit Recruit Members when ready.");
-        }
-        else if (result == RecruitmentApplier.ApplyResult.ConditionAddonNotOpen)
-        {
-            Plugin.ChatGui.PrintError("[Clarion] Open the recruitment form first: in Party Finder, click Recruit Members, then try again.");
-        }
-        else
-        {
-            Plugin.ChatGui.PrintError("[Clarion] Couldn't reach the Party Finder just now. Make sure you're logged in, then try again.");
-        }
-    }
+        => plugin.PresetLauncher.Launch(preset, submit);
 
     public override void Draw()
     {
-        ImGui.TextWrapped("Save the current Party Finder recruitment form as a preset, or apply a saved preset to the form.");
-        ImGui.TextDisabled("Open the recruitment creation form in-game (Recruit Members) before saving or applying.");
+        ImGui.TextWrapped("Save the current Party Finder recruitment form as a preset, or apply a saved preset in one click.");
+        ImGui.TextDisabled("To save, open the recruitment form in-game first (Recruit Members). Applying a preset opens it for you.");
         if (ImGui.Button("Settings"))
             plugin.OpenSettings();
         ImGui.Separator();
@@ -143,19 +156,26 @@ public sealed class MainWindow : Window, IDisposable
                     else
                         dutyPart = $"{dutyName}, ";
                     ImGui.TextDisabled($"({dutyPart}Loot: {Spaced(preset.LootRule)})");
+
+                    // Deliberate hover target so the overview only shows when you point at it, not
+                    // whenever the cursor passes over the row.
+                    ImGui.SameLine();
+                    ImGui.TextDisabled("(?)");
+                    if (ImGui.IsItemHovered())
+                        ImGui.SetTooltip(BuildOverview(preset));
                 }
 
                 // Line 2: actions, so nothing clips no matter how long the name is.
                 if (ImGui.Button("Fill only", new Vector2(80, 0)))
                     ApplyPreset(preset, submit: false);
                 if (ImGui.IsItemHovered())
-                    ImGui.SetTooltip("Load this preset into the open recruitment form so you can check it before recruiting.");
+                    ImGui.SetTooltip("Open the recruitment form if needed and fill in this preset, so you can review it before recruiting.");
 
                 ImGui.SameLine();
                 if (ImGui.Button("Fill & recruit", new Vector2(110, 0)))
                     ApplyPreset(preset, submit: true);
                 if (ImGui.IsItemHovered())
-                    ImGui.SetTooltip("Load this preset and start recruiting in one step.");
+                    ImGui.SetTooltip("Open Party Finder if needed, fill in this preset, and start recruiting in one step.");
 
                 ImGui.SameLine();
                 if (ImGui.Button("Rename", new Vector2(70, 0)))
