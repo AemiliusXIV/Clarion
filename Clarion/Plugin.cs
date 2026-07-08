@@ -15,6 +15,14 @@ public sealed class Plugin : IDalamudPlugin
 {
     public string Name => "Clarion";
 
+    // Appended to window titles in dev builds so it's obvious at a glance you're running the dev
+    // plugin, not the released one. Empty in every release build.
+#if PFP_DEVTOOLS
+    internal const string BuildTag = " (Dev)";
+#else
+    internal const string BuildTag = "";
+#endif
+
     private const string MainCommand = "/clarion";
     private const string AliasCommand = "/pfpresets";
 

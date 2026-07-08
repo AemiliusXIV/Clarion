@@ -20,7 +20,7 @@ public sealed class MainWindow : Window, IDisposable
     // Pending delete confirmation: the id awaiting a second click.
     private Guid pendingDeleteId = Guid.Empty;
 
-    public MainWindow(Plugin plugin) : base("Clarion##pfp_main")
+    public MainWindow(Plugin plugin) : base($"Clarion{Plugin.BuildTag}##pfp_main")
     {
         this.plugin = plugin;
         Size = new Vector2(520, 380);

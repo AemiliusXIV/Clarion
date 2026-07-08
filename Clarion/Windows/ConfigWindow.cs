@@ -10,7 +10,7 @@ public sealed class ConfigWindow : Window, IDisposable
     private readonly Plugin plugin;
     private Configuration Config => plugin.Config;
 
-    public ConfigWindow(Plugin plugin) : base("Clarion Settings##pfp_cfg")
+    public ConfigWindow(Plugin plugin) : base($"Clarion Settings{Plugin.BuildTag}##pfp_cfg")
     {
         this.plugin = plugin;
         Size = new Vector2(460, 300);

@@ -59,7 +59,7 @@ public sealed unsafe class CompanionWindow : Window, IDisposable
         const float w = 260f;
         var presets = plugin.Config.Presets;
 
-        ImGui.TextDisabled("Clarion quick apply");
+        ImGui.TextDisabled($"Clarion{Plugin.BuildTag} quick apply");
         ImGui.Spacing();
 
         if (presets.Count == 0)
