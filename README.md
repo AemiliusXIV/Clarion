@@ -16,16 +16,27 @@ ready to reapply later.
 
 ## Applying a preset
 
-- **Fill only** writes the preset into the recruitment form and reopens it so you can look it
-  over before you post.
-- **Fill + submit** does the same and posts the party in one action.
+- **Fill only** loads the preset into the recruitment form and reopens it so you can look it over
+  before you post.
+- **Fill & recruit** loads it and posts the party in one action.
+
+You don't need anything open first. If Party Finder is closed, applying opens it and the
+recruitment form for you, so **Fill & recruit** can go from nothing to a posted party in a single
+click.
+
+## Quick pop-up
+
+Whenever the in-game recruitment form is open, a small pop-up appears beside it: your last-used
+preset on a button, a dropdown for the rest, and a link into the full window. It follows the form
+on screen so you can apply without opening the main window. Move it, or turn it off, in settings.
 
 ## Keeping a listing alive
 
-Turn on auto-refresh and the plugin re-confirms your listing a few minutes before its hour runs
-out, so it stays up without you re-posting. It works with the Party Finder windows closed and
-leaves your away status alone, so if you're marked away with a frame limiter or notifier tied to
-it, you stay that way.
+Turn on auto-refresh and Clarion re-confirms your listing before its hour runs out, so it stays up
+without you re-posting. It picks up any live listing, whether you posted it through Clarion or by
+hand, works with the Party Finder windows closed, and leaves your away status alone (so a frame
+limiter or notifier tied to it keeps running). You set how many minutes should be left when it
+refreshes.
 
 ## Installation
 
@@ -40,8 +51,10 @@ Clarion is part of the [AemiliusXIV plugin repository](https://github.com/Aemili
 ## Usage
 
 - `/clarion` opens the preset window. `/clarion cfg` opens settings.
-- Open the in-game Recruitment Criteria form (Recruit Members) to save or apply, since that's
-  where a listing is configured.
+- To **save** a preset, open the in-game Recruitment Criteria form (Recruit Members) first, since a
+  preset is a snapshot of the form on screen. To **apply** one you don't need anything open;
+  Clarion opens Party Finder and the form for you.
+- Hover the (?) beside a preset to see exactly what it would set.
 
 ## Privacy
 
