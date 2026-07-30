@@ -50,7 +50,10 @@ public static class RecruitmentApplier
         {
             var ops = Plugin.Instance.RecruitmentOps;
             ops.SelectCategory((uint)preset.Category);
-            if (!ops.SelectDutyById(preset.DutyId))
+            // DutyId 0 means the category has no specific duty (e.g. a hunt train = "The Hunt / Refer
+            // to Comment"); selecting the category is enough, and scanning for duty 0 would only
+            // disturb the selection.
+            if (preset.DutyId != 0 && !ops.SelectDutyById(preset.DutyId))
                 DevLog.Info($"[PFP apply] duty {preset.DutyId} not found in category {preset.Category}");
         }
 

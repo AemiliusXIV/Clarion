@@ -82,10 +82,13 @@ public sealed class MainWindow : Window, IDisposable
             return;
         }
 
-        // Name priority: typed name, else the duty's name, else a numbered fallback.
+        // Name priority: typed name, else the duty's name, else the category (for category-only
+        // listings like hunt trains, which have no specific duty), else a numbered fallback.
         var name = newPresetName.Trim();
         if (name.Length == 0)
             name = DutyNames.Get(captured.DutyId);
+        if (name.Length == 0 && captured.Category != AgentLookingForGroup.DutyCategory.None)
+            name = Spaced(captured.Category);
         if (name.Length == 0)
             name = $"Preset {plugin.Config.Presets.Count + 1}";
         captured.Name = name;
@@ -148,6 +151,8 @@ public sealed class MainWindow : Window, IDisposable
                     // Secondary line: the duty (unless the name already is the duty) and the loot rule,
                     // labelled so "Normal" reads as a loot rule rather than a mystery word.
                     var dutyName = DutyNames.Get(preset.DutyId);
+                    if (dutyName.Length == 0 && preset.Category != AgentLookingForGroup.DutyCategory.None)
+                        dutyName = Spaced(preset.Category); // category-only, e.g. a hunt train = "The Hunt"
                     string dutyPart;
                     if (dutyName.Length == 0)
                         dutyPart = "unknown duty, ";

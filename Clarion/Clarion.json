@@ -22,5 +22,5 @@
     "CanUnloadAsync": true,
     "LoadPriority": 0,
     "AcceptsFeedback": true,
-    "Changelog": "Applying a preset now opens Party Finder and the recruitment form itself if they're closed, so you can post a party in one click from nothing. A compact quick pop-up appears beside the recruitment form for fast applying; you can move it or turn it off in settings. Hover the (?) on any preset row to see exactly what it would set."
+    "Changelog": "Presets for hunt trains and other listings that have no specific duty now save under their category name, like The Hunt, instead of showing as unknown, and they apply cleanly."
 }
